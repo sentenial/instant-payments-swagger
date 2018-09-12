@@ -1,37 +1,12 @@
-## Welcome to GitHub Pages
+## Welcome to the instsant payments swagger specification
 
-You can use the [editor on GitHub](https://github.com/sentenial/instant-payments-swagger/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+The specification is a language-agnostic interface to RESTful APIs which allows both humans and computers to discover and understand the capabilities of the service without access to source code, documentation, or through network traffic inspection. When properly defined, a consumer can understand and interact with the remote service with a minimal amount of implementation logic.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+The specification can then be used by documentation generation tools to display the API, code generation tools to generate servers and clients in various programming languages, testing tools, and many other use cases.
 
-### Markdown
+### Documentation 
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+Please visit our documentation site at https://sentenial.github.io/instant-payments-swagger/, this website displays is the website representation of this repository.
 
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/sentenial/instant-payments-swagger/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+#### Redoc
+Out API specification is available at the folliwing link. [Click here for the API documentation](https://sentenial.github.io/instant-payments-swagger/docs/redoc.html)
