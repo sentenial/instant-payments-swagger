@@ -1,0 +1,942 @@
+swagger: '2.0'
+info:
+  description: API for initializing SEPA Instant payments
+  version: '1.0'
+  title: SEPA Instant REST API
+  termsOfService: Terms of service
+  contact:
+    name: sentenial
+    url: 'http://sentenial.com'
+    email: engineering@sentenial.com
+  license:
+    name: License of API
+    url: 'https://www.nuapay.com/'
+host: 'sent-test-spr6.sent.local:8080'
+basePath: /instant/api
+tags:
+  - name: instantpayments
+    description: Service to initiate a SEPA Instant Payments.
+paths:
+  /instantpayments:
+    post:
+      tags:
+        - instantpayments
+      summary: Sepa Instant Payments Initiation Service
+      description: Endpoint that will be used to initiate instant payments in the Instant Payments module (IPM).
+      operationId: PostInstantPaymentsUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: paymentsRequest
+          required: true
+          description: Details of SEPA Instant Payment to be created.
+          schema:
+            $ref: '#/definitions/paymentsRequestEnvelope'   
+      responses:
+        '201':
+          description: Payment successfully created.
+          schema:
+            $ref: '#/definitions/paymentRequestResponseEnvelope'
+          examples:
+            application/json:
+              uri: /instantpayments/abc1234
+              data: 
+                id: abc1234
+                uri: /instantpayments/abc1234
+                paymentStatus: EXPORTED
+                acceptanceDateTime: 2018-04-17T11:28:24Z
+                paymentDetails:
+                  interBankSettlementDate: 2018-06-08 
+                  interBankSettlementAmount: 999.99
+                  currency: EUR
+                  categoryPurpose:
+                    code: BONU
+                  purpose:
+                    code: BKDF
+                  paymentIdentifiers:
+                    endToEndId: e2eIdsepaInst250418135632
+                    transactionId: txnIdsepaInst250418135632
+                  debtor:
+                    name: John Doe
+                    address:
+                      line1: 123 A Street
+                      line2: A Road
+                      country: IE
+                  debtorAccount:
+                    iban: GB14SELN00999950563593
+                    bic: SELNGB21
+                  ultimateDebtor:
+                    name: John Doe PLC
+                    organisationId:
+                      other:
+                        id: Test Other ID for Org
+                        schemeName:
+                          code: BANK
+                        issuer: John Doe PLC
+                  creditor:
+                    name: Jane Doe
+                    address:
+                      line1: 567 A Street
+                      line2: A Road
+                      country: IE
+                  creditorAccount:
+                    iban: IE98BOFI90970839308993
+                    bic: BOFIIE2DXXX
+                  ultimateCreditor:
+                    name: Jane Doe LTD
+                    privateId:
+                      dateAndPlaceOfBirth: 
+                        birthDate: '2018-04-17'
+                        cityOfBirth: A Town
+                        countryOfBirth: IE
+                  remittanceInformation:
+                    unstructured: This is a credit transfer sent via SIP
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: SI000
+              returnDescription: Input validation errors occurred. Please check details.
+              details:
+              -
+                code: SI100
+                description: 	Field is required.
+                field: debtorAccount
+                resourceUri: null
+              -
+                code: SI101
+                description: 	Field is invalid or max length is exceeded.
+                field: iban
+                resourceUri: null                
+              -
+                code: SI112
+                description: Interbank Settlement amount cannot be a zero or negative value
+                field: interBankSettlementAmount
+                resourceUri: null               
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              details:
+              returnCode: null
+              returnDescription: null                      
+        '404':
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              details:
+              returnCode: null
+              returnDescription: null                    
+        '405':
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              details:
+              returnCode: null
+              returnDescription: null                    
+        '415':
+          description: Unsupported Media Type
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              details:
+              returnCode: null
+              returnDescription: null                    
+        '422':
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              returnCode: SI004
+              returnDescription: Resource validation error.
+              details:
+              -
+                code: SI102
+                description: 	Max amount exceeded, the maximum transaction amount defined by the scheme is 15000.00
+                field: interBankSettlementAmount
+                resourceUri: null
+              -
+                code: SI103
+                description: 	Either categoryPurpose ‘code‘ or ‘proprietary’ is allowed
+                field: categoryPurpose
+                resourceUri: null                
+              -
+                code: SI104
+                description: transactionId must be must be unique for the current date and debtor agent
+                field: transactionId
+                resourceUri: null
+              -
+                code: SI105
+                description: Either ultimateDebtor ‘organizationId‘ or ‘privateId’ is allowed
+                field: ultimateDebtor
+                resourceUri: null
+              -
+                code: SI106
+                description: Either ultimateCreditor ‘organizationId‘ or ‘privateId’ is allowed
+                field: ultimateCreditor
+                resourceUri: null  
+              -
+                code: SI107
+                description: Either ‘bicOrBei’ or ‘other’ is allowed
+                field: organisationId
+                resourceUri: null  
+              -
+                code: SI108
+                description: Either ‘organisationIdOtherSchemeNameCode’ or ‘organisationIdOtherSchemeNameProprietary’ is allowed
+                field: schemeName
+                resourceUri: null  
+              -
+                code: SI109
+                description: Either ‘dateAndPlaceOfBirth’ or ‘other’ is allowed
+                field: privateId
+                resourceUri: null    
+              -
+                code: SI110
+                description: Either ‘privateIdOtherSchemeNameCode’ or ‘privateIdOtherSchemeNameProprietary’ is allowed
+                field: schemeName
+                resourceUri: null    
+              -
+                code: SI111
+                description: Either ‘unstructured’ or ‘structured’ is allowed
+                field: remittanceInformation
+                resourceUri: null   
+              - 
+                code: SI113
+                description: Affiliate config not found
+                field: null
+                resourceUri: null
+              -
+                code: SI114
+                description: Insufficient funds
+                field: interBankSettlementAmount
+                resourceUri: null  
+              -
+                code: SI115
+                description: Creditor bank BIC is not reachable for SEPA Instant Payment
+                field: creditorAccount.bic
+                resourceUri: null
+              -
+                code: SI116
+                description: Credit Transfer between accounts held in same bank needs to be processed internally
+                field: creditorAccount.bic
+                resourceUri: null
+              - 
+                code: SI117
+                description: Debtor Address is Required as per Wire Transfer Regulation
+                field: debtor.Address
+                resourceUri: null
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              details:
+              returnCode: null
+              returnDescription: null                    
+      security:
+        - OriginatorApiKey: []
+        - OriginatorOAuth2: []
+  /instantpayments/{instantPaymentId}:        
+    get:
+      tags:
+        - instantpayments
+      summary: Service to return details of an inbound or outbound Sepa Instant Payment.
+      description: Endpoint that will be used to return instant payment requests in the Instant Payments module (IPM).
+      operationId: GetInstantPaymentsUsingGET
+      consumes:
+        - '*/*'
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: instantPaymentId
+          required: true
+          description: Encoded ID of the instant payment resource.
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/paymentRequestResponseEnvelope'
+          examples:
+            application/json:
+              uri: /instantpayments/abc1234
+              data: 
+                id: abc1234
+                uri: /instantpayments/abc1234
+                paymentType: OUTGOING
+                paymentStatus: EXPORTED
+                acceptanceDateTime: 2018-04-17T11:28:24Z
+                paymentDetails:
+                  interBankSettlementDate: 2018-06-08 
+                  interBankSettlementAmount: 999.99
+                  currency: EUR
+                  categoryPurpose:
+                    code: BONU
+                  purpose:
+                    code: BKDF
+                  paymentIdentifiers:
+                    endToEndId: e2eIdsepaInst250418135632
+                    transactionId: txnIdsepaInst250418135632
+                  debtor:
+                    name: John Doe
+                    address:
+                      line1: 123 A Street
+                      line2: A Road
+                      country: IE
+                  debtorAccount:
+                    iban: GB14SELN00999950563593
+                    bic: SELNGB21
+                  ultimateDebtor:
+                    name: John Doe PLC
+                    organisationId:
+                      other:
+                        id: Test Other ID for Org
+                        schemeName:
+                          code: BANK
+                        issuer: John Doe PLC
+                  creditor:
+                    name: Jane Doe
+                    address:
+                      line1: 567 A Street
+                      line2: A Road
+                      country: IE
+                  creditorAccount:
+                    iban: IE98BOFI90970839308993
+                    bic: BOFIIE2DXXX
+                  ultimateCreditor:
+                    name: Jane Doe LTD
+                    privateId:
+                      dateAndPlaceOfBirth: 
+                        birthDate: '2018-04-17'
+                        cityOfBirth: A Town
+                        countryOfBirth: IE
+                  remittanceInformation:
+                    unstructured: This is a credit transfer sent via SIP
+                rejectDetails:
+                  rejectReason: AM04
+                  rejectDate: 2018-04-17T11:28:24Z
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              details:
+              returnCode: null
+              returnDescription: null
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              details:
+              returnCode: null
+              returnDescription: null                              
+        '404':
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              details:
+              returnCode: null
+              returnDescription: null                
+        '405':
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              details:
+              returnCode: null
+              returnDescription: null                
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              details:
+              returnCode: null
+              returnDescription: null                
+      security:
+        - OriginatorApiKey: []
+        - OriginatorOAuth2: []
+definitions:
+  paymentsRequestEnvelope:
+    type: object
+    required:
+      - paymentDetails
+    properties:
+      paymentDetails:
+        $ref: '#/definitions/paymentDetailsObject'
+    example:
+      paymentDetails:
+        interBankSettlementAmount: 999.99
+        categoryPurpose:
+          code: BONU
+        purpose:
+          code: BKDF
+        paymentIdentifiers:
+          endToEndId: e2eIdsepaInst250418135632
+          transactionId: txnIdsepaInst250418135632
+        debtor:
+          name: John Doe
+          address:
+            line1: 123 A Street
+            line2: A Road
+            country: IE
+        debtorAccount:
+          iban: GB14SELN00999950563593
+          bic: SELNGB21
+        ultimateDebtor:
+          name: John Doe PLC
+          organisationId:
+            other:
+              id: Test Other ID for Org
+              schemeName:
+                code: BANK
+              issuer: John Doe PLC
+        creditor:
+          name: Jane Doe
+          address:
+            line1: 567 A Street
+            line2: A Road
+            country: IE
+        creditorAccount:
+          iban: IE98BOFI90970839308993
+          bic: BOFIIE2DXXX
+        ultimateCreditor:
+          name: Jane Doe LTD
+          privateId:
+            dateAndPlaceOfBirth: 
+              birthDate: '2018-04-17'
+              cityOfBirth: A Town
+              countryOfBirth: IE
+        remittanceInformation:
+          unstructured: This is a credit transfer sent via SIP                          
+  paymentDetailsObject:
+    type: object
+    required:
+      - interBankSettlementAmount
+      - paymentIdentifiers
+      - debtor
+      - debtorAccount
+      - creditor
+      - creditorAccount
+    properties:
+      interBankSettlementAmount:
+        type: number
+        minLength: 1
+        maxLength: 12
+        description: The CT transaction amount.
+      categoryPurpose:
+        $ref: '#/definitions/categoryPurposeObject'
+      purpose:
+        $ref: '#/definitions/purposeObject'
+      paymentIdentifiers:
+        $ref: '#/definitions/paymentIdentifiersObject'
+      debtor:
+        $ref: '#/definitions/debtorObject'
+      debtorAccount:
+        $ref: '#/definitions/debtorAccountObject'
+      ultimateDebtor:
+        $ref: '#/definitions/ultimateDebtorObject'
+      creditor:
+        $ref: '#/definitions/creditorObject'
+      creditorAccount:
+        $ref: '#/definitions/creditorAccountObject'
+      ultimateCreditor:
+        $ref: '#/definitions/ultimateCreditorObject'
+      remittanceInformation:
+        $ref: '#/definitions/remittanceInformationObject'
+  categoryPurposeObject:
+    type: object
+    properties:
+      code:
+        type: string
+        minLength: 4
+        maxLength: 4
+        description: Specifies a high level purpose of the instruction based on a set of predefined codes. Cannot be used at the same time as 'Proprietary'.
+      proprietary:
+        type: string
+        minLength: 1
+        maxLength: 35
+        description: Category Purpose Proprietary. Cannot be used at the same time as 'Code'.
+  purposeObject:
+    type: object
+    properties:
+      code:
+        type: string
+        minLength: 4
+        maxLength: 4
+        description: 'Purpose Code, ENUM based on ISO external code set ''ExternalPurpose1Code''.'
+  paymentIdentifiersObject:
+    type: object
+    required:
+      - endToEndId
+      - transactionId
+    properties:
+      endToEndId:
+        type: string
+        pattern: ([A-Za-z0-9]|[+|\?|/|\-|\(|\)|\.|,|']){1,35}
+        description: The end to end ID of the CT transaction.
+      transactionId:
+        type: string
+        pattern: ([A-Za-z0-9]|[+|\?|/|\-|\(|\)|\.|,|']){1,35}
+        description: The transaction ID of the CT transaction.
+  debtorObject:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        minLength: 1
+        maxLength: 70
+        description: The debtor name associated to the CT transaction.
+      address:
+        $ref: '#/definitions/addressObject'
+  addressObject:
+    type: object
+    properties:
+      line1:
+        type: string
+        minLength: 1
+        maxLength: 70
+        description: Address line 1.
+      line2:
+        type: string
+        minLength: 1
+        maxLength: 70
+        description: Address line 2.
+      country:
+        type: string
+        minLength: 2
+        maxLength: 2
+        description: ISO3166-1 alpha-2 country code.
+  debtorAccountObject:
+    type: object
+    required:
+      - iban
+      - bic
+    properties:
+      iban:
+        type: string
+        pattern: '[a-zA-Z]{2}[0-9]{2}[a-zA-Z0-9]{1,30}'
+        description: The debtor account IBAN.
+      bic:
+        type: string
+        pattern: '[A-Z]{6}[A-Z2-9][A-NP-Z0-9]([A-Z0-9]{0,3})?'
+        description: The debtor account BIC.
+  ultimateDebtorObject:
+    type: object
+    description: Defines the Ultimate Debtor associated to the transaction. Can include either OrgId or PrvtId
+    properties:
+      name:
+        type: string
+        minLength: 1
+        maxLength: 70
+        description: The ultimate debtor name.
+      organisationId:
+        $ref: '#/definitions/organisationIdObject'
+      privateId:
+        $ref: '#/definitions/privateIdObject'
+  creditorObject:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        minLength: 1
+        maxLength: 70
+        description: The creditor name associated to the CT transaction.
+      address:
+        $ref: '#/definitions/addressObject'
+  creditorAccountObject:
+    type: object
+    required:
+      - iban
+      - bic
+    properties:
+      iban:
+        type: string
+        pattern: '[a-zA-Z]{2}[0-9]{2}[a-zA-Z0-9]{1,30}'
+        description: The creditor account IBAN.
+      bic:
+        type: string
+        pattern: '[A-Z]{6}[A-Z2-9][A-NP-Z0-9]([A-Z0-9]{0,3})?'
+        description: The creditor account BIC.
+  ultimateCreditorObject:
+    type: object
+    properties:
+      name:
+        type: string
+        minLength: 1
+        maxLength: 70
+        description: The ultimate creditor name.
+      organisationId:
+        $ref: '#/definitions/organisationIdObject'
+      privateId:
+        $ref: '#/definitions/privateIdObject'
+  organisationIdObject:
+    type: object
+    description: Either 'BIC or BEI' or one occurance of 'Other' is allowed.
+    properties:
+      bicOrBei:
+        type: string
+        pattern: '[A-Z]{6}[A-Z2-9][A-NP-Z0-9]([A-Z0-9]{0,3})?'
+        description: The ultimate creditor/debtor bic.
+      other:
+        $ref: '#/definitions/organisationIdOtherObject'
+  organisationIdOtherObject:
+    type: object
+    required:
+      - id
+    properties:
+      id:
+        type: string
+        minLength: 1
+        maxLength: 35
+        description: Organization ID Other ID
+      schemeName:
+        $ref: '#/definitions/organisationIdSchemeNameObject'
+      issuer:
+        type: string
+        minLength: 1
+        maxLength: 35
+        description: Organization ID Other Issuer
+  organisationIdSchemeNameObject:
+    type: object
+    properties:
+      code:
+        type: string
+        minLength: 4
+        maxLength: 4
+        description: 'Organization ID Scheme Name Code, ENUM based on ISO external code set ''ExternalOrganisationIdentification1Code''. Cannot be used at the same time as organisationIdSchemeNameProprietary.'
+      proprietary:
+        type: string
+        minLength: 1
+        maxLength: 35
+        description: Organization ID Scheme Name Proprietary. Cannot be used at the same time as organisationIdSchemeNameCode.
+  privateIdObject:
+    type: object
+    description: Either 'Date and Place of Birth' or one occurrence of 'Other' is allowed.
+    properties:
+      dateAndPlaceOfBirth:
+        $ref: '#/definitions/dateAndPlaceOfBirth'
+      other:
+        $ref: '#/definitions/privateIdOtherObject'
+  dateAndPlaceOfBirth:
+    type: object
+    required:
+      - birthDate
+      - cityOfBirth
+      - countryOfBirth
+    properties:
+      birthDate:
+        type: string
+        format: date
+        description: 'Ultimate Creditor/Debtor Birth Date, in format YYYY-MM-DD.'
+      cityOfBirth:
+        type: string
+        minLength: 1
+        maxLength: 35
+        description: City of Birth
+      countryOfBirth:
+        type: string
+        minLength: 2
+        maxLength: 2
+        description: ISO3166-1 alpha-2 country code.
+  privateIdOtherObject:
+    type: object
+    required:
+      - privateIdOtherId
+    properties:
+      id:
+        type: string
+        minLength: 1
+        maxLength: 35
+        description: Private ID Other ID
+      schemeName:
+        $ref: '#/definitions/privateIdSchemeNameObject'
+      issuer:
+        type: string
+        minLength: 1
+        maxLength: 35
+        description: Private ID Other Issuer
+  privateIdSchemeNameObject:
+    type: object
+    description: One instance of 'Scheme Name Code' or 'Scheme Name Proprietary' is allowed.
+    properties:
+      code:
+        type: string
+        minLength: 4
+        maxLength: 4
+        description: 'Private ID Scheme Name Code, ENUM based on ISO external code set ''ExternalPersonIdentification1Code''. Cannot be used at the same time as privateIdSchemeNameProprietary.'
+      proprietary:
+        type: string
+        minLength: 1
+        maxLength: 35
+        description: Private ID Scheme Name Proprietary. Cannot be used at the same time as privateIdSchemeNameCode.
+  remittanceInformationObject:
+    type: object
+    description: Either 'Unstructured' or 'Structured' Remittance Information can be used.
+    properties:
+      unstructured:
+        type: string
+        minLength: 1
+        maxLength: 140
+        description: Unstructured Remittance Information
+      structured:
+        $ref: '#/definitions/structuredRemittanceObject'
+  structuredRemittanceObject:
+    type: object
+    required:
+      - creditorReferenceInfoReference
+      - structuredRemittanceType
+    properties:
+      structuredRemittanceType:
+        $ref: '#/definitions/structuredRemittanceTypeObject'
+      creditorReferenceInfoReference:
+        type: string
+        minLength: 1
+        maxLength: 35
+        description: Creditor Reference Information Reference.
+  structuredRemittanceTypeObject:
+    type: object
+    required:
+      - creditorReferenceInfoCode
+    properties:
+      creditorReferenceInfoCode:
+        type: string
+        description: Creditor reference info code.
+        enum:
+          - SCOR
+      creditorReferenceInfoIssuer:
+        type: string
+        minLength: 1
+        maxLength: 35
+        description: Creditor Reference Information Type Issuer.
+  paymentRequestResponseEnvelope:
+    type: object
+    required:
+      - uri
+      - data
+    properties:
+      uri:
+        type: string
+        description: Uri of the queried resource.
+      data:
+        $ref: '#/definitions/paymentRequestResponse'
+  paymentRequestResponse:
+    type: object
+    required:
+      - id
+      - uri
+      - paymentType
+      - paymentStatus
+      - acceptanceDateTime
+      - paymentDetails
+      - rejectDetails
+    properties:
+      id:
+        type: string
+        description: ID of the SEPA instant trasaction resource.
+      uri:
+        type: string
+        description: Uri of the SEPA instant transaction resource.
+      paymentType:
+        type: string
+        description: |-
+          The type of the SEPA instant payment, can be either an incoming or outgoing payment.
+      
+          Status | Status Description |
+          ---------|----------|
+          INCOMING | Incoming instant payment CT |
+          OUTGOING | Outgoing instant payment CT |
+        enum:
+          - INCOMING
+          - OUTGOING
+      paymentStatus:
+        type: string
+        description: |-
+          The status of the SEPA Instant Payment.
+      
+          Status | Status Description |
+          ---------|----------|
+          EXPORTED | Outgoing instant CT status. Set when the Pacs.008.001.02 is sent to RT1 but before reciept of the Pain.002 Confirmation from RT1 |
+          REJECTED | Outgoing and Incoming CT status. For outgoing payments this is set if the Pain.002 Confirmation from RT1 rejects the instant CT. For incoming payments this is set if the CT is rejected either by Instant Payments or a formal notification NACK from RT1 |
+          ACCEPTED | Incoming CT status. For incoming payments this is set if the CT is accepted by Instant Payments. |
+          SETTLED | Outgoing and Incoming CT status. For outgoing payments this is set if the Pain.002 Confirmation from RT1 accepts the instant CT. For incoming payments this is set after receiving a formal notification ACK from RT1 clearing |
+        enum:
+          - EXPORTED
+          - REJECTED
+          - ACCEPTED
+          - SETTLED
+      acceptanceDateTime:
+        type: string
+        format: date-time
+        description: 'Acceptance date and time, for outgoing payments this is the time when the Pacs.008.001.02 is sent to RT1 clearing. For incoming payments this is the time as recieved in the incoming Pacs.008.001.02.'
+      paymentDetails:
+        $ref: '#/definitions/paymentResponseDetailsObject'
+      rejectDetails:
+        $ref: '#/definitions/rejectDetailsObject'
+  paymentResponseDetailsObject:
+    type: object
+    required:
+      - interBankSettlementDate
+      - interBankSettlementAmount
+      - currency
+      - paymentIdentifiers
+      - debtor
+      - debtorAccount
+      - creditor
+      - creditorAccount
+    properties:
+      interBankSettlementDate:
+        type: string
+        format: date
+        description: 'Interbank Settlement Date, in format YYYY-MM-DD.'
+      interBankSettlementAmount:
+        type: number
+        minLength: 1
+        maxLength: 12
+        description: The CT transaction amount, supports up to 2 decimal places.
+      currency:
+        type: string
+        minLength: 3
+        maxLength: 3
+        description: 3 letter ISO currency code.
+      categoryPurpose:
+        $ref: '#/definitions/categoryPurposeObject'
+      purpose:
+        $ref: '#/definitions/purposeObject'
+      paymentIdentifiers:
+        $ref: '#/definitions/paymentIdentifiersObject'
+      debtor:
+        $ref: '#/definitions/debtorObject'
+      debtorAccount:
+        $ref: '#/definitions/debtorAccountObject'
+      ultimateDebtor:
+        $ref: '#/definitions/ultimateDebtorObject'
+      creditor:
+        $ref: '#/definitions/creditorObject'
+      creditorAccount:
+        $ref: '#/definitions/creditorAccountObject'
+      ultimateCreditor:
+        $ref: '#/definitions/ultimateCreditorObject'
+      remittanceInformation:
+        $ref: '#/definitions/remittanceInformationObject'
+  rejectDetailsObject:
+    type: object
+    description: Rejection details associated to the credit transfer.
+    properties:
+      rejectReason:
+        type: string
+        description: Reject reason code of Pacs.002 acting against the credit transfer.
+      rejectDate:
+        type: string
+        format: date-time
+        description: Rejection date and time.
+  ErrorResponse:
+    type: object
+    properties:
+      details:
+        type: array
+        description: Holds list of input validation errors
+        items:
+          $ref: '#/definitions/ErrorDetailsItem'
+      returnCode:
+        type: string
+        description: |-
+          Error type code
+
+          Return Code | Return Description | Returned When |
+          ---------|----------|----------
+          SI000   | Input validation errors occurred. Please check details. | Returned when a 400 error occurs, details lists specific error codes in the request. |
+          SI004   | Resource validation error. | Returned when 422 business validations ooccurs, details lists specific error codes in the request. |
+        enum:
+          - SI000
+          - SI004
+      returnDescription:
+        type: string
+        description: Error type description
+  ErrorDetailsItem:
+    type: object
+    properties:
+      code:
+        type: string
+        description: Error code
+      description:
+        type: string
+        description: |-
+          Error description
+          Return Code | Return Description | Returned When |
+          ---------|----------|----------
+          SI100   | Field is required. | Returned when required parameter is not provided. |
+          SI101   | Field is invalid or max length is exceeded. | Returned when field length is exceeded or invalid data was provided (such as a value not listed in an ENUM). |          
+          SI102   | Max amount exceeded, the maximum transaction amount defined by the scheme is 15000.00 | Returned when the interbank settlement amount exceeds 15000.00 EUR |          
+          SI103   | Either categoryPurpose ‘code‘ or ‘proprietary’ is allowed. | Returned when both categoryPurpose Code and Proprietary are used in a request | 
+          SI104   | transactionId must be must be unique for the current date and debtor agent | transactionId must be unique for the given settlement date and debtor agent | 
+          SI105   | Either ultimateDebtor ‘organizationId‘ or ‘privateId’ is allowed. | Returned when both ‘organizationId‘ and ‘privateId’ are used in a request | 
+          SI106   | Either ultimateCreditor ‘organizationId‘ or ‘privateId’ is allowed. | Returned when both ‘organizationId‘ and ‘privateId’ are used in a request | 
+          SI107   | Either ‘bicOrBei’ or ‘other’ is allowed. | Returned when both ‘bicOrBei’ and ‘other’ are used in a request | 
+          SI108   | Either ‘organisationIdOtherSchemeNameCode’ or ‘organisationIdOtherSchemeNameProprietary’ is allowed. | Returned when both ‘organisationIdOtherSchemeNameCode’ and ‘organisationIdOtherSchemeNameProprietary’ are used in a request | 
+          SI109   | Either ‘dateAndPlaceOfBirth’ or ‘other’ is allowed. | Returned when both ‘dateAndPlaceOfBirth’ and ‘other’ are used in a request | 
+          SI110   | Either ‘privateIdOtherSchemeNameCode’ or ‘privateIdOtherSchemeNameProprietary’ is allowed. | Returned when both ‘privateIdOtherSchemeNameCode’ and ‘privateIdOtherSchemeNameProprietary’ are used in a request | 
+          SI111   | Either ‘unstructured’ or ‘structured’ is allowed. | Returned when both ‘unstructured’ and ‘structured’ are used in a request | 
+          SI112   | Interbank Settlement amount cannot be a zero or negative value | Returned when the interbank settlement amount is 0 or less than 0 (negative) |
+          SI113   |Affiliate config not found  | 
+          SI114   | Insufficient funds | Returned when the available balance is insufficient to create the instant payment |
+          SI115   | Creditor bank BIC is not reachable for SEPA Instant Payment| Returned when Creditor Agent BIC is not found in SEPA Instant Routing Table (added in SIP-4)|
+          SI116   |Credit Transfer between accounts held in same bank needs to be processed internally (added in SIP-293) |
+          SI117   |Debtor Address is Required as per Wire Transfer Regulation|Returned when Debtor Address is missing in Debtor Details within WTR2 validation (added in SIP-17)|
+        enum:
+          - SI100
+          - SI101
+          - SI102
+          - SI103
+          - SI104
+          - SI105
+          - SI106
+          - SI107
+          - SI108
+          - SI109
+          - SI110
+          - SI111
+          - SI112
+          - SI113
+          - SI114
+          - SI115
+          - SI116
+          - SI117
+      field:
+        type: string
+        description: JSON path to request object property the error is related to
+securityDefinitions:
+  OriginatorApiKey:
+    type: basic
+  OriginatorOAuth2:
+    type: oauth2
+    tokenUrl: 'https://api.nuapay.com/oauth/token_key'
+    flow: password
+    scopes:
+      ui: Authentication with username and password
