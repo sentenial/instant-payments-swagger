@@ -12,7 +12,7 @@ info:
     name: License of API
     url: https://www.nuapay.com/
   x-logo:
-    url: './docs/imgs/ip_logo_1.png'
+    url: './imgs/ip_logo_1.png'
 host: api.nuapay.com
 basePath: "/"
 
@@ -45,7 +45,7 @@ tags:
       * In general, funds are available on the beneficiary’s account in ten seconds maximum. However the scheme allows for a hard time-out deadline, to cover exceptional processing situations. In these exceptional cases, instructions will be processed up to 20 seconds after the Originator Bank has added a Time Stamp to the instruction.
       
       The following image gives an overview of the basic SCT Inst processing flows:
-      <img class="img-body" src="./docs/imgs/sipFlowOverview.png" alt="Sepa Instant Payments Overview">
+      <img class="img-body" src="./imgs/sipFlowOverview.png" alt="Sepa Instant Payments Overview">
   - name: Registration
     description: |-
       As part of the registration process you will be provided with the following:
