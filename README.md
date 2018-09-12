@@ -6,7 +6,7 @@ The specification can then be used by documentation generation tools to display 
 
 ### Website 
 
-Please visit github pages site [here]{https://sentenial.github.io/instant-payments-swagger/), this website displays is the website representation of this repository.
+Please visit github pages site [here](https://sentenial.github.io/instant-payments-swagger/), this website displays is the website representation of this repository.
 
 #### API Docs
 Out API specification is available at the following link. [Click here for the API documentation](https://sentenial.github.io/instant-payments-swagger/docs/redoc.html). 
