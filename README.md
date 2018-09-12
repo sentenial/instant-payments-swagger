@@ -4,10 +4,6 @@ A swagger specification is a language-agnostic interface to RESTful APIs which a
 
 The specification can then be used by documentation generation tools to display the API, code generation tools to generate servers and clients in various programming languages, testing tools, and many other use cases.
 
-### Website 
-
-Please visit github pages site [here](https://sentenial.github.io/instant-payments-swagger/), this website displays is the website representation of this repository.
-
 #### API Docs
 Out API specification is available at the following link. [Click here for the API documentation](https://sentenial.github.io/instant-payments-swagger/docs/redoc.html). 
 
